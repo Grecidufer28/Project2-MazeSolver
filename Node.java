@@ -51,5 +51,16 @@ public class Node {
 		this.pi = null;
 		this.color = 0;
 	}
+	
+	/**
+	 * toString function to show adjacency list of node
+	 */
+	public String toString() 
+	{
+		String result = "";
+		LinkedList<Node> placeHolder = adjacencyList;
+		result += placeHolder.size();
+		return result;
+	}
 
 }
