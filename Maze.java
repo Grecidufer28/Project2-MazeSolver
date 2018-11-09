@@ -5,7 +5,7 @@ import java.util.Random;
 import java.util.Stack;
 
 public class Maze {
-	Random seed;
+	private Random seed;
 	int dimensions;
 	int matrixSize;
 	//keeps track of how many nodes there are in the graph
@@ -15,15 +15,23 @@ public class Maze {
 	
 	public void printMaze() 
 	{
+		System.out.println(dimensions + " by " + dimensions + " Maze");
 		int step = 1;
 		//print the top row
 		for(int i = 0; i < dimensions; i++)
 		{
 			if(i == 0)
 			{
-				System.out.print("+ ");
+				if(!matrix[0][i].northWall)
+				{
+					System.out.print("+ ");
+				}
+				else
+				{ 
+					System.out.print("+-");
+				}
 			}
-			else
+			else if(matrix[0][i].northWall)
 			{ 
 				System.out.print("+-");
 			}
@@ -34,7 +42,7 @@ public class Maze {
 		{
 			if(step == 2)
 			{
-				System.out.print("|");
+				System.out.print("|"); //outer wall
 				for(int k = 0; k < dimensions; k++)
 				{
 					if(k == dimensions - 1)
@@ -70,9 +78,9 @@ public class Maze {
 						}
 						else
 						{
-							if(matrix[j][k].southWall)
+							if((matrix[j][k].southWall) && (matrix[j-1][k].northWall))
 							{
-								System.out.print(" |");
+								System.out.print("-+");
 							}
 							else
 							{
@@ -93,7 +101,7 @@ public class Maze {
 								System.out.print(" +");
 							}
 						}
-						else 
+						else  
 						{
 							if((matrix[j][k].southWall) && (matrix[j+1][k].northWall))
 							{
@@ -110,6 +118,7 @@ public class Maze {
 				step--;
 			}
 		}
+		System.out.print("\n");
 		
 	}
 	
@@ -130,7 +139,7 @@ public class Maze {
 			
 			if(neighbors.size() > 0)
 			{
-				int random = (int) (seed.nextDouble() * neighbors.size());
+				int random = (int) (myRandom() * neighbors.size());
 				Node selectedCell = neighbors.get(random);
 				knockDownWall(currentCell, selectedCell);
 				cellStack.push(currentCell);
@@ -142,6 +151,9 @@ public class Maze {
 				currentCell = cellStack.pop();
 			}
 		}
+
+		matrix[0][0].northWall = false;
+		matrix[dimensions-1][dimensions-1].southWall = false; 
 		return;
 	}
 	
@@ -420,13 +432,17 @@ public class Maze {
 			}
 		}
 	}
-	
+
+	public double myRandom()
+	{
+		return seed.nextDouble();
+	}
 	/**
 	 * generates a maze object to test
 	 * @param dimension
 	 */
 	public Maze(int dimension) {
-		this.seed = new Random(dimension);
+		seed = new java.util.Random(0);
 		this.dimensions = dimension;
 		this.matrixSize = dimension*dimension;
 		this.nodes = new Node[matrixSize];
