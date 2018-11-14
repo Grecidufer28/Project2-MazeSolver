@@ -36,6 +36,7 @@ public class Node {
 	boolean eastWall = true;
 	boolean westWall = true;
 	
+	boolean inPath = false;
 	/**
 	 * constructor for the vertex class
 	 * @param row - the row in which the node resides in
@@ -47,7 +48,7 @@ public class Node {
 		this.adjacencyList = new LinkedList<Node>();
 		this.startTime = 0;
 		this.endTime = 0;
-		this.value = "";
+		this.value = " ";
 		this.pi = null;
 		this.color = 0;
 	}

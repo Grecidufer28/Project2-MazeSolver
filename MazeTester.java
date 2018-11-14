@@ -16,7 +16,7 @@ public class MazeTester {
 		Maze maze4 = new Maze(4);
 		maze4.generateMaze();
 		maze4.printMaze();
-	//	maze4.printBFS();
+		maze4.printBFS();
 	//	maze4.printDFS();
 	}
 	
@@ -29,7 +29,7 @@ public class MazeTester {
 		Maze maze5 = new Maze(5);
 		maze5.generateMaze();
 		maze5.printMaze();
-	//	maze5.printBFS();
+		maze5.printBFS();
 	//	maze5.printDFS();
 	}
 	
@@ -41,7 +41,7 @@ public class MazeTester {
 		Maze maze6 = new Maze(6);
 		maze6.generateMaze();
 		maze6.printMaze();
-	//	maze6.printBFS();
+		maze6.printBFS();
 	//	maze6.printDFS();
 		
 	}
@@ -54,7 +54,7 @@ public class MazeTester {
 		Maze maze7 = new Maze(7);
 		maze7.generateMaze();
 		maze7.printMaze();
-    //	maze7.printBFS();
+    	maze7.printBFS();
 	//  maze7.printDFS();
 	}
 	
@@ -66,7 +66,7 @@ public class MazeTester {
 		Maze maze8 = new Maze(8);
 		maze8.generateMaze();
 		maze8.printMaze();
-	//	maze8.printBFS();
+		maze8.printBFS();
 	//	maze8.printDFS();
 	}
 	
@@ -78,7 +78,7 @@ public class MazeTester {
 		Maze maze10 = new Maze(10);
 		maze10.generateMaze();
 		maze10.printMaze();
-	//	maze10.printBFS();
+		maze10.printBFS();
 	//	maze10.printDFS();
 	}
 	

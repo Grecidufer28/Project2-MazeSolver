@@ -1,8 +1,10 @@
 package Maze;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Random;
 import java.util.Stack;
+import java.util.Queue;
 
 public class Maze {
 	private Random seed;
@@ -13,6 +15,119 @@ public class Maze {
 	//a representation of the maze in a 2-D array
 	Node matrix[][];
 	
+	/**
+	 * resets the nodes for solving the maze
+	 */
+	public void reset()
+	{
+		//resets the linkedlist representation of the maze 
+		for(int i = 0; i < nodes.length; i++)
+		{
+			nodes[i].startTime = 0;
+			nodes[i].endTime = 0;
+			nodes[i].value = " ";
+			nodes[i].pi = null;
+			nodes[i].color = 0;
+		}
+		
+		//resets the 2d array matrix representation of the maze
+		for(int i = 0; i < dimensions; i++)
+		{
+			for(int j = 0; j < dimensions; j++)
+			{
+				matrix[i][j].startTime = 0;
+				matrix[i][j].endTime = 0;
+				matrix[i][j].value = " ";
+				matrix[i][j].pi = null;
+				matrix[i][j].color = 0;
+			}
+		}
+	}
+	
+	/**
+	 * function to determine if there is a path between the two nodes
+	 * @param first - initial node to compare 
+	 * @param second - the second node to compare 
+	 * @return TRUE if there is a path between the two nodes that is not the path that they
+	 * 			came from
+	 *         else FALSE
+	 */
+	public boolean foundPath(Node first, Node second) 
+	{
+		if((!first.eastWall) && (!second.westWall) && (first.column == second.column-1)
+				&&(first.row == second.row))
+		{
+			return true;
+		}
+		else if((!first.westWall) && (!second.eastWall) && (first.column == second.column+1)
+				&&(first.row == second.row)) 
+		{
+			return true;
+		}
+		else if((!first.northWall) && (!second.southWall) && (first.column == second.column)
+				&&(first.row == second.row+1))
+		{
+			return true;
+		}
+		else if((!first.southWall) && (!second.northWall) && (first.column == second.column)
+				&&(first.row == second.row-1))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+			
+		
+	}
+	
+	/**
+	 * solves the maze using Breadth First Search
+	 */
+	public void solveBFSMaze() 
+	{
+		reset();
+		Node current = matrix[0][0];
+		Queue<Node> queue = new LinkedList<>();
+		queue.add(current);
+		//continues to explore the maze until queue reaches the last node
+		while(!queue.isEmpty() && (!current.equals(matrix[dimensions-1][dimensions-1])))
+		{
+			current = queue.remove();
+			for(int i = 0; i < current.adjacencyList.size(); i++)
+			{
+				Node check = current.adjacencyList.get(i);
+				if(check.color == 0 && foundPath(current, check))
+				{
+					check.color = 1;
+					check.startTime = current.startTime + 1;
+					if(check.startTime == 10)
+					{
+						check.startTime = 0;
+					}
+					check.pi = current;
+					queue.add(check);
+				}
+			}
+			current.color = 2;
+		}
+		//while loop finds the solution path for the maze
+		current = matrix[dimensions-1][dimensions-1];
+		while(current != matrix[0][0]) 
+		{
+			current.value = "#";
+			current = current.pi;
+			current.inPath = true;
+		}
+		matrix[0][0].value = "#";
+		matrix[0][0].inPath = true;
+	}
+	
+	/**
+	 * prints the generated maze without any
+	 * solutions or annotations
+	 */
 	public void printMaze() 
 	{
 		System.out.println(dimensions + " by " + dimensions + " Maze");
@@ -123,6 +238,309 @@ public class Maze {
 	}
 	
 	/**
+	 * prints out the BFS solutions for
+	 * the maze, including both solution path
+	 * and the BFS visit order 
+	 */
+	public void printBFS() 
+	{
+		solveBFSMaze();
+		printBFSPath();
+		printBFSHPath();
+	}
+	
+	/**
+	 * Prints out the numbered version of BFS solved maze.
+	 * Starts from zero and follow the path of the maze using BFS
+	 */
+	public void printBFSPath()
+	{
+		//used to iterate between the two layers of the maze
+		int step = 1;
+		System.out.print("BFS:\n");
+		//print the top row
+		for(int i = 0; i < dimensions; i++)
+		{
+			if(i == 0) //the first row top layer
+			{
+				if(!matrix[0][i].northWall)
+				{
+					System.out.print("+ ");
+				}
+				else
+				{ 
+					System.out.print("+-");
+				}
+			}
+			else if(matrix[0][i].northWall)
+			{ 
+				System.out.print("+-");
+			}
+		}
+		System.out.print("+\n"); //last plus on the row and new line
+		step++;
+		/*
+		 * the nested for loops print out the maze, separated into two layers
+		 * in the step == 2 loop, the inner for loop prints out the node 
+		 * representation of the maze
+		 * in the step == 3 loop, the inner for loop prints out the lines 
+		 * of the maze 
+		 */
+		for(int j = 0; j < dimensions; j++)
+		{
+			if(step == 2)
+			{
+				System.out.print("|"); //outer wall
+				for(int k = 0; k < dimensions; k++)
+				{
+					if((k == dimensions - 1) && (matrix[j][k].inPath))
+					{
+						System.out.print(matrix[j][k].startTime + "|");
+					}
+					else if((k == dimensions - 1) && (!matrix[j][k].inPath))
+					{
+						if(j == dimensions - 1)
+						{
+							System.out.print(matrix[j][k].startTime+"|");
+						}
+						else
+						{
+							System.out.print(" |");
+						}
+					}
+					else
+					{
+						if((matrix[j][k].eastWall) && (matrix[j][k+1].westWall) && (matrix[j][k].inPath))
+						{
+							System.out.print(matrix[j][k].startTime + "|");
+						}
+						else if((matrix[j][k].eastWall) && (matrix[j][k+1].westWall) && (!matrix[j][k].inPath))
+						{
+							System.out.print(" |");
+						}
+						else if((matrix[j][k].eastWall) && (matrix[j][k+1].westWall) && (matrix[j][k].equals(matrix[0][0])) && (matrix[j][k].inPath))
+						{
+							System.out.print(matrix[j][k].startTime+ " ");
+						}
+						else if((!matrix[j][k].eastWall) && (!matrix[j][k+1].westWall) && (matrix[j][k].inPath))
+						{
+							System.out.print(matrix[j][k].startTime + " ");
+						}
+						else
+						{
+							System.out.print("  ");
+						}
+					}
+					
+				}
+				System.out.print("\n");
+				step++;
+			}
+			if(step == 3)
+			{
+				System.out.print("+");
+				for(int k = 0; k < dimensions; k++)
+				{
+					if(k == dimensions - 1)
+					{
+						if(j == dimensions - 1) //the exit
+						{
+							System.out.print(" +");
+						}
+						else
+						{
+							if((matrix[j][k].southWall) && (matrix[j-1][k].northWall))
+							{
+								System.out.print("-+");
+							}
+							else
+							{
+								System.out.print(" +");
+							}
+						}
+					}
+					else
+					{
+						if(j == dimensions - 1)
+						{
+							if(matrix[j][k].southWall) //bottom row
+							{
+								System.out.print("-+");
+							}
+						}
+						else  
+						{
+							if((matrix[j][k].southWall) && (matrix[j+1][k].northWall))
+							{
+								System.out.print("-+");
+							}
+							else
+							{
+								System.out.print(" +");
+							}
+						}
+					}		
+				}
+				System.out.print("\n");
+				step--;
+			}
+		}
+		System.out.print("\n");
+	}
+	
+	/**
+	 * Prints out the solution path of BFS solved maze using
+	 * # to mark the path
+	 */
+	public void printBFSHPath()
+	{
+		//used to iterate between the two layers of the maze
+		int step = 1;
+		//print the top row
+		for(int i = 0; i < dimensions; i++)
+		{
+			if(i == 0) //the first row top layer
+			{
+				if(!matrix[0][i].northWall)
+				{
+					System.out.print("+#");
+				}
+				else
+				{ 
+					System.out.print("+-");
+				}
+			}
+			else if(matrix[0][i].northWall)
+			{ 
+				System.out.print("+-");
+			}
+		}
+		System.out.print("+\n"); //prints the last corner before a new line
+		step++;
+		/*
+		 * the nested for loops print out the maze, separated into two layers
+		 * in the step == 2 loop, the inner for loop prints out the node 
+		 * representation of the maze
+		 * in the step == 3 loop, the inner for loop prints out the lines 
+		 * of the maze 
+		 */
+		for(int j = 0; j < dimensions; j++)
+		{
+			if(step == 2)
+			{
+				System.out.print("|"); //outer wall
+				for(int k = 0; k < dimensions; k++)
+				{
+					if((k == dimensions - 1) && (matrix[j][k].inPath))
+					{
+						System.out.print(matrix[j][k].value + "|");
+					}
+					else if((k == dimensions - 1) && (!matrix[j][k].inPath))
+					{
+						if(j == dimensions - 1)
+						{
+							System.out.print(matrix[j][k].value+"|");
+						}
+						else
+						{
+							System.out.print(" |");
+						}
+					}
+					else
+					{
+						if((matrix[j][k].eastWall) && (matrix[j][k+1].westWall) && (matrix[j][k].inPath))
+						{
+							System.out.print(matrix[j][k].value + "|");
+						}
+						else if((matrix[j][k].eastWall) && (matrix[j][k+1].westWall) && (!matrix[j][k].inPath))
+						{
+							System.out.print(" |");
+						}
+						else if((matrix[j][k].eastWall) && (matrix[j][k+1].westWall) && (matrix[j][k].equals(matrix[0][0])) && (matrix[j][k].inPath))
+						{
+							System.out.print(matrix[j][k].value + matrix[j][k].value);
+						}
+						else if((!matrix[j][k].eastWall) && (!matrix[j][k+1].westWall) && (matrix[j][k].inPath))
+						{
+							System.out.print(matrix[j][k].value + matrix[j][k].value);
+						}
+						else
+						{
+							System.out.print("  ");
+						}
+					}
+					
+				}
+				System.out.print("\n");
+				step++;
+			}
+			if(step == 3)
+			{
+				System.out.print("+");
+				for(int k = 0; k < dimensions; k++)
+				{
+					if(k == dimensions - 1)
+					{
+						if(j == dimensions - 1) //the exit
+						{
+							System.out.print(matrix[j][k].value + "+");
+						}
+						else
+						{
+							if((matrix[j][k].southWall) && (matrix[j-1][k].northWall))
+							{
+								System.out.print("-+");
+							}
+							else
+							{
+								if(matrix[j][k].inPath)
+								{
+									System.out.print("#+");
+								}
+								else
+								{
+									System.out.print(" +");
+								}
+							}
+						}
+					}
+					else
+					{
+						if(j == dimensions - 1)
+						{
+							if(matrix[j][k].southWall) //bottom row
+							{
+								System.out.print("-+");
+							}
+						}
+						else  
+						{
+							if((matrix[j][k].southWall) && (matrix[j+1][k].northWall))
+							{
+								System.out.print("-+");
+							}
+							else
+							{
+								if(matrix[j][k].inPath)
+								{
+									System.out.print("#+");
+								}
+								else
+								{
+									System.out.print(" +");
+								}
+							}
+						}
+					}		
+				}
+				System.out.print("\n");
+				step--;
+			}
+		}
+		System.out.print("\n");
+	}
+	
+	/**
 	 * Creates a perfect maze using Depth First Search algorithm
 	 */
 	public void generateMaze() 
@@ -151,7 +569,6 @@ public class Maze {
 				currentCell = cellStack.pop();
 			}
 		}
-
 		matrix[0][0].northWall = false;
 		matrix[dimensions-1][dimensions-1].southWall = false; 
 		return;
@@ -253,6 +670,12 @@ public class Maze {
 		}
 	}
 
+	/**
+	 * Checks all neighbors to see if they have all walls up AKA
+	 * they have not been explored
+	 * @param cell - cell to check unexplored neighbors
+	 * @return an arraylist with all unexplored neighbors
+	 */
 	public ArrayList<Node> checkNeighbors(Node cell)
 	{
 		ArrayList<Node> unexplored = new ArrayList<>();
@@ -433,10 +856,16 @@ public class Maze {
 		}
 	}
 
+	/**
+	 * generates a random double to use for selecting
+	 * an adjacent node
+	 * @return a random double
+	 */
 	public double myRandom()
 	{
 		return seed.nextDouble();
 	}
+	
 	/**
 	 * generates a maze object to test
 	 * @param dimension
