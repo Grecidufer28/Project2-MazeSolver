@@ -20,7 +20,7 @@ public class Maze {
 	 */
 	public void reset()
 	{
-		//resets the linkedlist representation of the maze 
+		//resets the linkedlist representation of the maze
 		for(int i = 0; i < nodes.length; i++)
 		{
 			nodes[i].startTime = 0;

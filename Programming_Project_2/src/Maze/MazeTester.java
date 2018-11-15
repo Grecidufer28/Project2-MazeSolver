@@ -81,4 +81,14 @@ public class MazeTester {
 		maze10.printBFS();
 		maze10.printDFS();
 	}
+	
+	public static void main(String[] args) {
+		MazeTester test = new MazeTester();
+		test.test4by4();
+		test.test5x5();
+		test.test6x6();
+		test.test7x7();
+		test.test8x8();
+		test.test10x10();
+	}
 }
